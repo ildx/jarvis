@@ -21,6 +21,7 @@ config.font = wezterm.font("JetBrainsMono Nerd Font")
 config.font_size = 15
 
 config.front_end = "WebGpu"
+config.send_composed_key_when_left_alt_is_pressed = true
 
 config.enable_tab_bar = false
 

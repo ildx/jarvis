@@ -1,0 +1,23 @@
+# ~/.gitconfig
+
+[includeIf "gitdir/i:~/Development/personal/"]
+    path = ~/.config/git/.personal
+  
+[includeIf "gitdir/i:~/Development/work/"]
+  path = ~/.config/git/.work
+
+[core]
+  pager = delta
+
+[init]
+  defaultBranch = main
+
+[push]
+  autoSetupRemote = true
+  default = current
+
+[alias]
+  undo = reset --soft HEAD^
+
+[delta]
+  line-numbers = true
