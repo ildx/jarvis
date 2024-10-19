@@ -28,6 +28,7 @@
                 pkgs.ripgrep
 								pkgs.starship
 								pkgs.stow
+                pkgs.vscode
 								pkgs.wezterm
 								pkgs.zellij
                 pkgs.zoxide
