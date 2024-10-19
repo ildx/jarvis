@@ -19,6 +19,7 @@
       environment.systemPackages =
         [
 								pkgs.aerospace
+                pkgs.delta
                 pkgs.fzf
 								pkgs.lsd
 								pkgs.mkalias	 
