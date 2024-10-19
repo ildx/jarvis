@@ -1,17 +1,33 @@
 #!/usr/bin/bash
 
+# ---------------------------------
+# Setup
+# ---------------------------------
+
 # Obs, bail out
 set -e
 
-# Vars
-DEV="$HOME/Development"
-PSN="$DEV/personal"
+# Constants
 SRC="$(dirname "$(realpath "$0")")"
+DEV="$HOME/Development"
+DEV_PERSONAL="$DEV/personal"
 
-# Call the Avengers
-source "$SRC/nuke.sh"
-source "$SRC/keys.sh"
-source "$SRC/populate.sh"
+# Printers
+info () {
+	echo -e "\r[ \033[00;34m!!\033[0m ] $1"
+}
+
+success () {
+	echo -e "\r\033[2K[ \033[00;32mOK\033[0m ] $1"
+}
+
+warning () {
+  echo -e "\r[ \033[00;33m..\033[0m ] $1"
+}
+
+# ---------------------------------
+# Initiate
+# ---------------------------------
 
 # Supa-dupa-fly
 sudo -v
@@ -24,18 +40,79 @@ echo "Hello $(whoami)! Let's get you set up."
 
 printf "\n"
 
+# ---------------------------------
+# Go nuclear
+# ---------------------------------
+
+# TODO: Confirm that we actually want to nuke everything!!
+
 # Remove all life on earth...
-nuke
+info "Launching missiles"
+printf "\n"
+
+# ---------------------------------
+# Create file system 
+# ---------------------------------
+
+info "Let's build a place to call home"
+printf "\n"
+
+DIR=(
+				"$DEV"
+				"$DEV_PERSONAL"
+				"$HOME/.config"
+				"$HOME/Archives"
+				"$HOME/Pictures/Screenshots"
+)
+
+for dir in "${DIR[@]}"; do
+    if [ -d "$dir" ]; then  # Regular space here, not non-breaking
+        warning "Directory $dir already exists, skipping..."
+    else
+        mkdir -p "$dir"
+        info "Directory $dir created successfully!"
+    fi
+done
+
+printf "\n"
+success "A new ecosystem is in place!"
 
 printf "\n"
 
-# Create directories
-populate
+# ---------------------------------
+# SSH
+# ---------------------------------
+
+info "Handover keys to the kingdom"
+printf "\n"
+
+SSH="$HOME/.ssh"
+
+if ! [[ -f "$SSH/authorized_keys" ]]; then
+  mkdir -p "$SSH"
+  ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
+  cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
+  eval "$(ssh-agent -s)"
+  echo "# Github
+  Host github.com
+    AddKeysToAgent yes
+    IdentityFile $SSH/id.personal
+    IgnoreUnknown UseKeychain" >> "$SSH/config"
+  ssh-add "$SSH/id.personal"
+  success "SSH keys generated successfully!"
+else
+  success "SSH keys already generated, skipping..."
+fi
 
 printf "\n"
 
+# ---------------------------------
 # Install Nix
+# ---------------------------------
+
 info "Let's Nixify this bad boy!"
+printf "\n"
+
 if command -v nix &>/dev/null; then
   warning "Nix already installed. Checking for updates..."
 	printf "\n"
@@ -57,14 +134,20 @@ fi
 
 printf "\n"
 
-keygen
+# ---------------------------------
+# Get dotfiles
+# ---------------------------------
 
-# Bring in the big guns
-nix-shell -p git --run "git clone https://github.com/ildx/jarvis.git $PSN"
+info "Bring in the big guns"
+printf "\n"
+
+nix-shell -p git --run "git clone https://github.com/ildx/jarvis.git $DEV_PERSONAL"
 
 printf "\n"
 
-# SSH
-# info "Handover keys to the kingdom"
-# keygen
+# ---------------------------------
+# Aftermath
+# ---------------------------------
 
+info "Remember to add ssh key to github ( pbcopy < path_to_key )"
+printf "\n"
