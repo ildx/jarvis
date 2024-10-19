@@ -1,0 +1,15 @@
+themes {
+	josean-cool-night {
+		bg "#011423"
+		fg "#cbe0f0"
+		red "#eb6f92"
+		green "#24EAF7"
+		blue "#9ccfd8"
+		yellow "#f6c177"
+		magenta "#c4a7e7"
+		orange "#a277ff"
+		cyan "#ea9a97"
+		black "#393552"
+		white "#cbe0f0"
+	}
+}

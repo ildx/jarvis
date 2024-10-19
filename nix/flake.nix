@@ -18,9 +18,13 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages =
         [
+								pkgs.aerospace
+								pkgs.lsd
 								pkgs.mkalias	 
 								pkgs.neovim
 								pkgs.obsidian
+								pkgs.starship
+								pkgs.stow
 								pkgs.wezterm
 								pkgs.zellij
         ];
