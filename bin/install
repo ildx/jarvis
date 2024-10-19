@@ -8,9 +8,7 @@
 set -e
 
 # Constants
-SRC="$(dirname "$(realpath "$0")")"
 DEV="$HOME/Development"
-DEV_PERSONAL="$DEV/personal"
 
 # Printers
 info () {
@@ -59,7 +57,7 @@ printf "\n"
 
 DIR=(
 				"$DEV"
-				"$DEV_PERSONAL"
+				"$DEV/personal"
 				"$HOME/.config"
 				"$HOME/Archives"
 				"$HOME/Pictures/Screenshots"
@@ -141,7 +139,7 @@ printf "\n"
 info "Bring in the big guns"
 printf "\n"
 
-nix-shell -p git --run "git clone https://github.com/ildx/jarvis.git $DEV_PERSONAL"
+nix-shell -p git --run "git clone https://github.com/ildx/jarvis.git $DEV/personal/jarvis"
 
 printf "\n"
 
