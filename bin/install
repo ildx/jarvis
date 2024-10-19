@@ -1,0 +1,70 @@
+#!/usr/bin/bash
+
+# Obs, bail out
+set -e
+
+# Vars
+DEV="$HOME/Development"
+PSN="$DEV/personal"
+SRC="$(dirname "$(realpath "$0")")"
+
+# Call the Avengers
+source "$SRC/nuke.sh"
+source "$SRC/keys.sh"
+source "$SRC/populate.sh"
+
+# Supa-dupa-fly
+sudo -v
+
+# Go home, and start fresh
+cd && clear
+
+# Be polite!
+echo "Hello $(whoami)! Let's get you set up."
+
+printf "\n"
+
+# Remove all life on earth...
+nuke
+
+printf "\n"
+
+# Create directories
+populate
+
+printf "\n"
+
+# Install Nix
+info "Let's Nixify this bad boy!"
+if command -v nix &>/dev/null; then
+  warning "Nix already installed. Checking for updates..."
+	printf "\n"
+
+  nix-channel --update
+
+	printf "\n"
+  success "Nix updated successfully!"
+else
+  warning "No Nix found, installing..."
+  printf "\n"
+
+  curl -L https://nixos.org/nix/install | sh
+	exec zsh
+
+	printf "\n"
+  success "Nix installed successfully!"
+fi
+
+printf "\n"
+
+keygen
+
+# Bring in the big guns
+nix-shell -p git --run "git clone https://github.com/ildx/jarvis.git $PSN"
+
+printf "\n"
+
+# SSH
+# info "Handover keys to the kingdom"
+# keygen
+
