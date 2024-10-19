@@ -5,7 +5,7 @@ if [ ! -d "$ZINIT_HOME" ]; then
 				git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
 
-source "$zINIT_HOME/zinit.zsh"
+source "$ZINIT_HOME/zinit.zsh"
 
 zinit light Aloxaf/fzf-tab
 zinit light zsh-users/zsh-autosuggestions
@@ -30,13 +30,13 @@ HISTFILE=~/.zsh_history
 HISTSIZE=5000
 SAVEHIST=$HISTSIZE
 
-setop appendhistory
-setop hist_find_no_dups
-setop hist_ignore_all_dups
-setop hist_ignore_dups
-setop hist_ignore_space
-setop hist_save_no_dups
-setop sharehistory
+setopt appendhistory
+setopt hist_find_no_dups
+setopt hist_ignore_all_dups
+setopt hist_ignore_dups
+setopt hist_ignore_space
+setopt hist_save_no_dups
+setopt sharehistory
 
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"

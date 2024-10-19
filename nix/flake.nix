@@ -19,14 +19,17 @@
       environment.systemPackages =
         [
 								pkgs.aerospace
+                pkgs.fzf
 								pkgs.lsd
 								pkgs.mkalias	 
 								pkgs.neovim
 								pkgs.obsidian
+                pkgs.ripgrep
 								pkgs.starship
 								pkgs.stow
 								pkgs.wezterm
 								pkgs.zellij
+                pkgs.zoxide
         ];
 
 	homebrew = {
