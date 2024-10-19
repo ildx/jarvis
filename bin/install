@@ -139,7 +139,9 @@ printf "\n"
 info "Bring in the big guns"
 printf "\n"
 
-nix-shell -p git --run "git clone https://github.com/ildx/jarvis.git $DEV/personal/jarvis"
+nix-shell -p git --run \
+  "git clone https://github.com/ildx/jarvis.git $DEV/personal/jarvis; \
+  git -C $DEV/personal/jarvis remote set-url origin git@github.com:ildx/jarvis.git"
 
 printf "\n"
 
