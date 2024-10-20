@@ -83,6 +83,9 @@ EOF
   # Add a cron job, so we can continue where we left off...
   (crontab -l 2>/dev/null; echo "$CRON") | crontab -
 
+  # Kill zsh session
+  rm -rf ~/.zsh_sessions/*
+
   info "All done! Repoop."
   repoop
 else
