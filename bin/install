@@ -41,14 +41,21 @@ cleanup() {
   if [ -f "$MARKER" ]; then
     warning "Running cleanup..."
     
-    if launchctl unload "$AGENT"; then
-      info "Launch agent unloaded successfully!"
+    # Unload the launch agent if it exists
+    if [ -f "$AGENT" ]; then
+      if launchctl unload "$AGENT"; then
+        info "Launch agent unloaded successfully!"
+      else
+        warning "Failed to unload the launch agent. Try running 'sudo launchctl bootout system $AGENT' for richer errors."
+      fi
+      rm -f "$AGENT"
     else
-      warning "Failed to unload the launch agent. Try running 'sudo launchctl bootout system $AGENT' for richer errors."
+      warning "Launch agent not found, skipping unload."
     fi
 
+    # Remove the marker file
     rm -f "$MARKER"
-    rm -f "$AGENT"
+    info "Marker file removed!"
     
     info "Cleanup completed!"
   fi
