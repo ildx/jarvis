@@ -34,6 +34,19 @@ warning() {
   echo -e "\r[ \033[00;33m..\033[0m ] $1"
 }
 
+# Ensure cleanup on error or exit
+trap 'cleanup' EXIT
+
+cleanup() {
+  if [ -f "$MARKER" ]; then
+    warning "Running cleanup..."
+    rm -f "$MARKER"
+    launchctl unload "$AGENT"
+    rm -f "$AGENT"
+    info "Cleanup completed!"
+  fi
+}
+
 # ---------------------------------
 # Let's begin
 # ---------------------------------
@@ -66,12 +79,12 @@ if ! has_requirements; then
 
   # Create nix stuff
   sudo mkdir -p /System/Volumes/Data/opt/nix
-  sudo chown ildx /System/Volumes/Data/opt/nix
-  sudo sh -c "echo 'nix\tSystem/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
+  sudo chown "$(whoami)" /System/Volumes/Data/opt/nix
+  sudo sh -c "echo 'nix System/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
 
   export NIX_IGNORE_SYMLINK_STORE=1
 
-  cat << 'EOF' > "$HOME/.zprofile"
+  cat << EOF > "$HOME/.zprofile"
 if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
   . "$HOME/.nix-profile/etc/profile.d/nix.sh"
   export NIX_IGNORE_SYMLINK_STORE=1
@@ -105,14 +118,7 @@ EOF
   info "All done! Repoop."
   repoop
 else
-  # Resurrection!
-  warning "Running cleanup..."
-
-  rm -f "$MARKER"
-  launchctl unload "$AGENT"
-  rm -f "$AGENT"
-
-  info "Cleaned up completed!"
+  warning "Resuming installation..."
 fi
 
 printf "\n"
@@ -139,8 +145,6 @@ else
   warning "Install nix..."
 
   curl -L https://nixos.org/nix/install | sh
-  exec zsh
-
   printf "\n"
   success "Nix installed successfully!"
 fi
