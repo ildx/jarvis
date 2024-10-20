@@ -91,9 +91,9 @@ fi
 printf "\n"
 
 if ! has_nix; then
-  install_requirements()
+  install_requirements
 else
-  install_nix()
+  install_nix
 fi
 
 printf "\n"
