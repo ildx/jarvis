@@ -38,6 +38,7 @@ has_lock() {
 
 # Funk soul brother
 install_requirements() {
+  info "Configure environment!"
   warning "Setting up requirements..."
 
   # Create nix stuff
@@ -62,26 +63,74 @@ EOF
 }
 
 install_nix() {
-  info "Nixify this bad boy!"
+  if ! has_nix && ! has_lock; then
+    install_requirements
+  else
+    rm -f "$LOCK_FILE"
+    info "Nixify this bad boy!"
+
+    if has_nix; then
+      warning "Nix already installed. Checking for updates..."
+      printf "\n"
+  
+      nix-channel --update
+  
+      printf "\n"
+      success "Nix updated successfully!"
+    else
+      warning "No Nix found!"
+      info "Installing nix..."
+      printf "\n"
+  
+      curl -L https://nixos.org/nix/install | sh
+  
+      printf "\n"
+      success "Nix installed successfully!"
+    fi
+  fi
+}
+
+install_dotfiles() {
+  info "Bring in the big guns!"
+
+  JRV="$HOME/Development/personal/jarvis"
+  mkdir -p "$JRV"
+
+  warning "Downloading files..."
   printf "\n"
 
-  if has_nix; then
-    warning "Nix already installed. Checking for updates..."
-    printf "\n"
+  nix-shell -p git --run \
+    "git clone https://github.com/ildx/jarvis.git \"$JRV\"; \
+    git -C \"$JRV\" remote set-url origin git@github.com:ildx/jarvis.git"
 
-    nix-channel --update
+  printf "\n"
+  success "Dotfiles downloaded successfully!"
+}
+
+add_keys() {
+  info "Handover keys to the kingdom"
+  printf "\n"
+
+  SSH="$HOME/.ssh"
+
+  if ! [[ -f "$SSH/authorized_keys" ]]; then
+    mkdir -p "$SSH"
+    ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
+    cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
+    eval "$(ssh-agent -s)"
+    cat << EOF >> "$SSH/config"
+Github
+Host github.com
+  AddKeysToAgent yes
+  IdentityFile $SSH/id.personal
+  IgnoreUnknown UseKeychain
+EOF
+    ssh-add "$SSH/id.personal"
 
     printf "\n"
-    success "Nix updated successfully!"
+    success "SSH keys generated successfully!"
   else
-    warning "No Nix found!"
-    printf "\n"
-
-    warning "Install nix..."
-    curl -L https://nixos.org/nix/install | sh
-
-    printf "\n"
-    success "Nix installed successfully!"
+    success "SSH keys already generated, skipping..."
   fi
 }
 
@@ -104,61 +153,20 @@ fi
 
 printf "\n"
 
-# ---------------------------------
 # Nix
-# ---------------------------------
 
-if ! has_nix && ! has_lock; then
-  install_requirements
-else
-  rm -f "$LOCK_FILE"
-  install_nix
-fi
+install_nix
+printf "\n"
 
-# ---------------------------------
 # Dotfiles
-# ---------------------------------
 
-#info "Bring in the big guns"
-#printf "\n"
+install_dotfiles
+printf "\n"
 
-#JRV="$HOME/Development/personal/jarvis"
-#mkdir -p "$JRV"
-
-#nix-shell -p git --run \
-#  "git clone https://github.com/ildx/jarvis.git \"$JRV\"; \
-#  git -C \"$JRV\" remote set-url origin git@github.com:ildx/jarvis.git"
-
-#printf "\n"
-
-# ---------------------------------
 # SSH
-# ---------------------------------
 
-#info "Handover keys to the kingdom"
-#printf "\n"
-
-#SSH="$HOME/.ssh"
-
-#if ! [[ -f "$SSH/authorized_keys" ]]; then
-#  mkdir -p "$SSH"
-#  ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
-#  cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
-#  eval "$(ssh-agent -s)"
-#  cat << EOF >> "$SSH/config"
-## Github
-#Host github.com
-#  AddKeysToAgent yes
-#  IdentityFile $SSH/id.personal
-#  IgnoreUnknown UseKeychain
-#EOF
-#  ssh-add "$SSH/id.personal"
-#  success "SSH keys generated successfully!"
-#else
-#  success "SSH keys already generated, skipping..."
-#fi
-
-#printf "\n"
+add_keys
+printf "\n"
 
 # ---------------------------------
 # Create file system 
