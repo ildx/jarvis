@@ -129,76 +129,76 @@ printf "\n"
 # Get dotfiles
 # ---------------------------------
 
-info "Bring in the big guns"
-printf "\n"
+#info "Bring in the big guns"
+#printf "\n"
 
-JRV="$HOME/Development/personal/jarvis"
-mkdir -p "$JRV"
+#JRV="$HOME/Development/personal/jarvis"
+#mkdir -p "$JRV"
 
-nix-shell -p git --run \
-  "git clone https://github.com/ildx/jarvis.git \"$JRV\"; \
-  git -C \"$JRV\" remote set-url origin git@github.com:ildx/jarvis.git"
+#nix-shell -p git --run \
+#  "git clone https://github.com/ildx/jarvis.git \"$JRV\"; \
+#  git -C \"$JRV\" remote set-url origin git@github.com:ildx/jarvis.git"
 
-printf "\n"
+#printf "\n"
 
 # ---------------------------------
 # SSH
 # ---------------------------------
 
-info "Handover keys to the kingdom"
-printf "\n"
+#info "Handover keys to the kingdom"
+#printf "\n"
 
-SSH="$HOME/.ssh"
+#SSH="$HOME/.ssh"
 
-if ! [[ -f "$SSH/authorized_keys" ]]; then
-  mkdir -p "$SSH"
-  ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
-  cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
-  eval "$(ssh-agent -s)"
-  cat << EOF >> "$SSH/config"
-# Github
-Host github.com
-  AddKeysToAgent yes
-  IdentityFile $SSH/id.personal
-  IgnoreUnknown UseKeychain
-EOF
-  ssh-add "$SSH/id.personal"
-  success "SSH keys generated successfully!"
-else
-  success "SSH keys already generated, skipping..."
-fi
+#if ! [[ -f "$SSH/authorized_keys" ]]; then
+#  mkdir -p "$SSH"
+#  ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
+#  cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
+#  eval "$(ssh-agent -s)"
+#  cat << EOF >> "$SSH/config"
+## Github
+#Host github.com
+#  AddKeysToAgent yes
+#  IdentityFile $SSH/id.personal
+#  IgnoreUnknown UseKeychain
+#EOF
+#  ssh-add "$SSH/id.personal"
+#  success "SSH keys generated successfully!"
+#else
+#  success "SSH keys already generated, skipping..."
+#fi
 
-printf "\n"
+#printf "\n"
 
 # ---------------------------------
 # Create file system 
 # ---------------------------------
 
-info "Build a place to call home"
-printf "\n"
+#info "Build a place to call home"
+#printf "\n"
 
-DIR=(
-  "$HOME/Archives"
-  "$HOME/Pictures/Screenshots"
-)
+#DIR=(
+#  "$HOME/Archives"
+#  "$HOME/Pictures/Screenshots"
+#)
 
-for dir in "${DIR[@]}"; do
-  if [ -d "$dir" ]; then
-    warning "Directory $dir already exists, skipping..."
-  else
-    mkdir -p "$dir"
-    info "Directory $dir created successfully!"
-  fi
-done
+#for dir in "${DIR[@]}"; do
+#  if [ -d "$dir" ]; then
+#    warning "Directory $dir already exists, skipping..."
+#  else
+#    mkdir -p "$dir"
+#    info "Directory $dir created successfully!"
+#  fi
+#done
 
-printf "\n"
-success "A new ecosystem is in place!"
+#printf "\n"
+#success "A new ecosystem is in place!"
 
-printf "\n"
+#printf "\n"
 
 # ---------------------------------
 # Aftermath
 # ---------------------------------
 
-info "Remember to add ssh key to github (pbcopy < path_to_key)"
-printf "\n"
+#info "Remember to add ssh key to github (pbcopy < path_to_key)"
+#printf "\n"
