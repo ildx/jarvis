@@ -144,7 +144,7 @@ use_xcode() {
     printf "\n"
 
     xcode-select --install
-    xcode-select --switch /Library/Developer/CommandLineTools
+    sudo xcode-select --switch /Library/Developer/CommandLineTools
     /usr/sbin/softwareupdate --install-rosetta --agree-to-license
 
     printf "\n"
