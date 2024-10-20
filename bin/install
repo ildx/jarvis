@@ -1,68 +1,12 @@
 #!/usr/bin/bash
 
-# ---------------------------------
-# Setup
-# ---------------------------------
-
-LABEL="com.user.jarvis"
-AGENT="$HOME/Library/LaunchAgents/${LABEL}.plist"
-MARKER="$HOME/tmp/jarvis.install"
+# Load dependencies
+source <(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/printers)
+source <(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/requirements)
+source <(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/setup)
 
 # Obs, bail out
 set -e
-
-# Teehee!
-repoop() {
-  sudo reboot
-}
-
-# The truth is out here
-has_requirements() {
-  command -v nix &>/dev/null || [ -f "$MARKER" ]
-}
-
-# Printers
-info() {
-  echo -e "\r[ \033[00;34m!!\033[0m ] $1"
-}
-
-success() {
-  echo -e "\r\033[2K[ \033[00;32mOK\033[0m ] $1"
-}
-
-warning() {
-  echo -e "\r[ \033[00;33m..\033[0m ] $1"
-}
-
-# Ensure cleanup on error or exit
-trap 'cleanup' EXIT
-
-cleanup() {
-  warning "Running cleanup..."
-
-  # Unload the launch agent if it exists
-  if [ -f "$AGENT" ]; then
-    if launchctl unload "$AGENT"; then
-      info "Launch agent unloaded successfully!"
-    else
-      warning "Failed to unload the launch agent. Try running 'sudo launchctl bootout system $AGENT' for richer errors."
-    fi
-    rm -f "$AGENT"
-    info "Launch agent removed!"
-  else
-    warning "Launch agent not found, skipping unload."
-  fi
-
-  # Remove the marker file if it exists
-  if [ -f "$MARKER" ]; then
-    rm -f "$MARKER"
-    info "Marker file removed!"
-  else
-    warning "Marker file not found, skipping removal."
-  fi
-
-  info "Cleanup completed!"
-}
 
 # ---------------------------------
 # Let's begin
@@ -75,7 +19,7 @@ sudo -v
 cd && clear
 
 # Be polite!
-if ! has_requirements; then
+if ! command -v nix &>/dev/null; then
   echo "Hello $(whoami)! Let's get you set up."
 else
   echo "Welcome back $(whoami)! Let's continue."
@@ -83,201 +27,8 @@ fi
 
 printf "\n"
 
-# ---------------------------------
-# B.C.
-# ---------------------------------
-
-# File vault is meh and kills nix install so we must do some manual work :P
-
-# If nix is not installed and no jarvis in tmp...
-if ! has_requirements; then
-
-  warning "Setting up requirements..."
-
-  # Create nix stuff
-  sudo mkdir -p /System/Volumes/Data/opt/nix
-  sudo chown "$(whoami)" /System/Volumes/Data/opt/nix
-  sudo sh -c "echo 'nix System/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
-
-  export NIX_IGNORE_SYMLINK_STORE=1
-
-  cat << EOF > "$HOME/.zprofile"
-if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
-  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
-  export NIX_IGNORE_SYMLINK_STORE=1
-fi
-EOF
-
-  # Set a marker that we were here...
-  mkdir -p "$HOME/tmp"
-  touch "$MARKER"
-
-  # Ensure the LaunchAgents directory exists
-  mkdir -p "$HOME/Library/LaunchAgents"
-
-  # Create .plist file
-  cat << EOF > "$AGENT"
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-  <dict>
-    <key>Label</key>
-    <string>$LABEL</string>
-    <key>ProgramArguments</key>
-    <array>
-      <string>/bin/bash</string>
-      <string>$0</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-  </dict>
-</plist>
-EOF
-
-  if launchctl load "$AGENT"; then
-    info "Launch agent loaded successfully!"
-  else
-    warning "Failed to load the launch agent. Try running 'sudo launchctl bootstrap system $AGENT' for richer errors."
-  fi
-  
-  info "All done! Repoop."
-  repoop
-else
-  warning "Resuming installation..."
+if ! command -v nix &>/dev/null; then
+  install_nix()
 fi
 
 printf "\n"
-
-# ---------------------------------
-# Install Nix
-# ---------------------------------
-
-info "Nixify this bad boy!"
-printf "\n"
-
-if command -v nix &>/dev/null; then
-  warning "Nix already installed. Checking for updates..."
-  printf "\n"
-
-  nix-channel --update
-
-  printf "\n"
-  success "Nix updated successfully!"
-else
-  warning "No Nix found!"
-  printf "\n"
-
-  warning "Install nix..."
-
-  curl -L https://nixos.org/nix/install | sh
-  printf "\n"
-  success "Nix installed successfully!"
-fi
-
-printf "\n"
-
-# ---------------------------------
-# Install Nix
-# ---------------------------------
-
-info "Nixify this bad boy!"
-printf "\n"
-
-if command -v nix &>/dev/null; then
-  warning "Nix already installed. Checking for updates..."
-  printf "\n"
-
-  nix-channel --update
-
-  printf "\n"
-  success "Nix updated successfully!"
-else
-  warning "No Nix found!"
-  printf "\n"
-
-  warning "Install nix..."
-
-  curl -L https://nixos.org/nix/install | sh
-  printf "\n"
-  success "Nix installed successfully!"
-fi
-
-printf "\n"
-
-# ---------------------------------
-# Get dotfiles
-# ---------------------------------
-
-#info "Bring in the big guns"
-#printf "\n"
-
-#JRV="$HOME/Development/personal/jarvis"
-#mkdir -p "$JRV"
-
-#nix-shell -p git --run \
-#  "git clone https://github.com/ildx/jarvis.git \"$JRV\"; \
-#  git -C \"$JRV\" remote set-url origin git@github.com:ildx/jarvis.git"
-
-#printf "\n"
-
-# ---------------------------------
-# SSH
-# ---------------------------------
-
-#info "Handover keys to the kingdom"
-#printf "\n"
-
-#SSH="$HOME/.ssh"
-
-#if ! [[ -f "$SSH/authorized_keys" ]]; then
-#  mkdir -p "$SSH"
-#  ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
-#  cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
-#  eval "$(ssh-agent -s)"
-#  cat << EOF >> "$SSH/config"
-## Github
-#Host github.com
-#  AddKeysToAgent yes
-#  IdentityFile $SSH/id.personal
-#  IgnoreUnknown UseKeychain
-#EOF
-#  ssh-add "$SSH/id.personal"
-#  success "SSH keys generated successfully!"
-#else
-#  success "SSH keys already generated, skipping..."
-#fi
-
-#printf "\n"
-
-# ---------------------------------
-# Create file system 
-# ---------------------------------
-
-#info "Build a place to call home"
-#printf "\n"
-
-#DIR=(
-#  "$HOME/Archives"
-#  "$HOME/Pictures/Screenshots"
-#)
-
-#for dir in "${DIR[@]}"; do
-#  if [ -d "$dir" ]; then
-#    warning "Directory $dir already exists, skipping..."
-#  else
-#    mkdir -p "$dir"
-#    info "Directory $dir created successfully!"
-#  fi
-#done
-
-#printf "\n"
-#success "A new ecosystem is in place!"
-
-#printf "\n"
-
-# ---------------------------------
-# Aftermath
-# ---------------------------------
-
-#info "Remember to add ssh key to github (pbcopy < path_to_key)"
-#printf "\n"
