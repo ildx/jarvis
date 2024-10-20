@@ -26,6 +26,7 @@ has_nix() {
   command -v nix &>/dev/null
 }
 
+# Funk soul brother
 install_requirements() {
   warning "Setting up requirements..."
 
