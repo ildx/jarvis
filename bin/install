@@ -4,8 +4,8 @@
 # Setup
 # ---------------------------------
 
-AGENT="$HOME/Library/LaunchAgents/${LABEL}.plist"
 LABEL="com.user.jarvis"
+AGENT="$HOME/Library/LaunchAgents/${LABEL}.plist"
 MARKER="$HOME/tmp/jarvis.install"
 
 # Obs, bail out
@@ -40,9 +40,16 @@ trap 'cleanup' EXIT
 cleanup() {
   if [ -f "$MARKER" ]; then
     warning "Running cleanup..."
+    
+    if launchctl unload "$AGENT"; then
+      info "Launch agent unloaded successfully!"
+    else
+      warning "Failed to unload the launch agent. Try running 'sudo launchctl bootout system $AGENT' for richer errors."
+    fi
+
     rm -f "$MARKER"
-    launchctl unload "$AGENT"
     rm -f "$AGENT"
+    
     info "Cleanup completed!"
   fi
 }
@@ -95,6 +102,9 @@ EOF
   mkdir -p "$HOME/tmp"
   touch "$MARKER"
 
+  # Ensure the LaunchAgents directory exists
+  mkdir -p "$HOME/Library/LaunchAgents"
+
   # Create .plist file
   cat << EOF > "$AGENT"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -113,12 +123,45 @@ EOF
   </dict>
 </plist>
 EOF
-  launchctl load "$AGENT"
+
+  if launchctl load "$AGENT"; then
+    info "Launch agent loaded successfully!"
+  else
+    warning "Failed to load the launch agent. Try running 'sudo launchctl bootstrap system $AGENT' for richer errors."
+  fi
   
   info "All done! Repoop."
   repoop
 else
   warning "Resuming installation..."
+fi
+
+printf "\n"
+
+# ---------------------------------
+# Install Nix
+# ---------------------------------
+
+info "Nixify this bad boy!"
+printf "\n"
+
+if command -v nix &>/dev/null; then
+  warning "Nix already installed. Checking for updates..."
+  printf "\n"
+
+  nix-channel --update
+
+  printf "\n"
+  success "Nix updated successfully!"
+else
+  warning "No Nix found!"
+  printf "\n"
+
+  warning "Install nix..."
+
+  curl -L https://nixos.org/nix/install | sh
+  printf "\n"
+  success "Nix installed successfully!"
 fi
 
 printf "\n"
