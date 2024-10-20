@@ -112,9 +112,9 @@ install_dotfiles() {
 
 add_keys() {
   info "Handover keys to the kingdom"
-  printf "\n"
 
   if ! [[ -f "$SSH/authorized_keys" ]]; then
+    printf "\n"
     mkdir -p "$SSH"
     ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
     cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
