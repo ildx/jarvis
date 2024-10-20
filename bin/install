@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+LOCK_FILE="$HOME/jarvis.lock"
+
 # Obs, bail out
 set -e
 
@@ -26,6 +28,10 @@ has_nix() {
   command -v nix &>/dev/null
 }
 
+has_lock() {
+  [ -f "$LOCK_FILE" ]
+}
+
 # Funk soul brother
 install_requirements() {
   warning "Setting up requirements..."
@@ -44,6 +50,9 @@ if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
 fi
 EOF
 
+  # Add lock file
+  touch "$LOCKFILE"
+
   info "All done! Repoop."
   repoop
 }
@@ -52,7 +61,7 @@ install_nix() {
   info "Nixify this bad boy!"
   printf "\n"
 
-  if ! has_nix; then
+  if has_nix; then
     warning "Nix already installed. Checking for updates..."
     printf "\n"
 
@@ -91,9 +100,10 @@ fi
 
 printf "\n"
 
-if ! has_nix; then
+if if ! has_nix && ! has_lock; then
   install_requirements
 else
+  rm -f 
   install_nix
 fi
 
