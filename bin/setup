@@ -6,6 +6,10 @@ source <(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/print
 # Obs, bail out
 set -e
 
+has_nix() {
+  command -v nix &>/dev/null
+}
+
 # ---------------------------------
 # Nix
 # ---------------------------------
@@ -13,7 +17,7 @@ install_nix() {
   info "Nixify this bad boy!"
   printf "\n"
 
-  if command -v nix &>/dev/null; then
+  if ! has_nix; then
     warning "Nix already installed. Checking for updates..."
     printf "\n"
 
