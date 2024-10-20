@@ -55,7 +55,7 @@ printf "\n"
 
 # File vault is meh and kills nix install so we must do some manual work :P
 
-CRON="@reboot bash -c '$(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/install)'"
+CRON="@reboot bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/install)\""
 
 # If nix is not installed and no jarvis in tmp...
 if ! has_requirements; then
