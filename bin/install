@@ -4,7 +4,10 @@
 # Setup
 # ---------------------------------
 
+JARVIS="$HOME/Development/personal/jarvis"
 LOCK_FILE="$HOME/jarvis.lock"
+NIX_PROFILE="$HOME/.nix-profile/etc/profile.d/nix.sh"
+SSH="$HOME/.ssh"
 
 # Obs, bail out
 set -e
@@ -49,8 +52,8 @@ install_requirements() {
   export NIX_IGNORE_SYMLINK_STORE=1
 
   cat << EOF > "$HOME/.zprofile"
-if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
-  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+if [ -f "$NIX_PROFILE" ]; then
+  . "$NIX_PROFILE"
   export NIX_IGNORE_SYMLINK_STORE=1
 fi
 EOF
@@ -93,15 +96,14 @@ install_nix() {
 install_dotfiles() {
   info "Bring in the big guns!"
 
-  JRV="$HOME/Development/personal/jarvis"
-  mkdir -p "$JRV"
+  mkdir -p "$JARVIS"
 
   warning "Downloading files..."
   printf "\n"
 
   nix-shell -p git --run \
-    "git clone https://github.com/ildx/jarvis.git \"$JRV\"; \
-    git -C \"$JRV\" remote set-url origin git@github.com:ildx/jarvis.git"
+    "git clone https://github.com/ildx/jarvis.git \"$JARVIS\"; \
+    git -C \"$JARVIS\" remote set-url origin git@github.com:ildx/jarvis.git"
 
   printf "\n"
   success "Dotfiles downloaded successfully!"
@@ -110,8 +112,6 @@ install_dotfiles() {
 add_keys() {
   info "Handover keys to the kingdom"
   printf "\n"
-
-  SSH="$HOME/.ssh"
 
   if ! [[ -f "$SSH/authorized_keys" ]]; then
     mkdir -p "$SSH"
@@ -134,6 +134,26 @@ EOF
   fi
 }
 
+install_flakes() {
+  info "Let is snow, let it snow, let is snow!"
+  printf "\n"
+
+  darwin-rebuild switch --flake "$JARVIS#hal"
+
+  printf "\n"
+  success "Flakes sprinkled aroung!"
+}
+
+link_files() {
+  info "Link dotfiles"
+  printf "\n"
+
+  stow --dir=$JARVIS/config --target=$HOME
+
+  printf "\n"
+  success "Dotfiles in place!"
+}
+
 # ---------------------------------
 # Let us begin
 # ---------------------------------
@@ -154,18 +174,23 @@ fi
 printf "\n"
 
 # Nix
-
 install_nix
 printf "\n"
 
 # Dotfiles
-
 install_dotfiles
 printf "\n"
 
 # SSH
-
 add_keys
+printf "\n"
+
+# Flakes
+install_flakes
+printf "\n"
+
+# Stow
+link_files
 printf "\n"
 
 # ---------------------------------
