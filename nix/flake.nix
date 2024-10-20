@@ -25,6 +25,7 @@
 								pkgs.mkalias	 
 								pkgs.neovim
 								pkgs.obsidian
+                pkgs.raycast
                 pkgs.ripgrep
 								pkgs.starship
 								pkgs.stow

@@ -7,9 +7,6 @@
 # Obs, bail out
 set -e
 
-# Constants
-DEV="$HOME/Development"
-
 # Printers
 info () {
 	echo -e "\r[ \033[00;34m!!\033[0m ] $1"
@@ -56,20 +53,17 @@ info "Let's build a place to call home"
 printf "\n"
 
 DIR=(
-				"$DEV"
-				"$DEV/personal"
-				"$HOME/.config"
-				"$HOME/Archives"
-				"$HOME/Pictures/Screenshots"
+  "$HOME/Archives"
+  "$HOME/Pictures/Screenshots"
 )
 
 for dir in "${DIR[@]}"; do
-    if [ -d "$dir" ]; then  # Regular space here, not non-breaking
-        warning "Directory $dir already exists, skipping..."
-    else
-        mkdir -p "$dir"
-        info "Directory $dir created successfully!"
-    fi
+  if [ -d "$dir" ]; then  # Regular space here, not non-breaking
+    warning "Directory $dir already exists, skipping..."
+  else
+    mkdir -p "$dir"
+    info "Directory $dir created successfully!"
+  fi
 done
 
 printf "\n"
@@ -139,9 +133,12 @@ printf "\n"
 info "Bring in the big guns"
 printf "\n"
 
+JRV="$HOME/Development/personal/jarvis"
+mkdir -p $JRV
+
 nix-shell -p git --run \
-  "git clone https://github.com/ildx/jarvis.git $DEV/personal/jarvis; \
-  git -C $DEV/personal/jarvis remote set-url origin git@github.com:ildx/jarvis.git"
+  "git clone https://github.com/ildx/jarvis.git $JRV; \
+  git -C $JRV remote set-url origin git@github.com:ildx/jarvis.git"
 
 printf "\n"
 
