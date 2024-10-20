@@ -11,21 +11,23 @@ repoop() {
   sudo reboot
 }
 
-warning "Setting up requirements..."
+install_requirements() {
+  warning "Setting up requirements..."
 
-# Create nix stuff
-sudo mkdir -p /System/Volumes/Data/opt/nix
-sudo chown "$(whoami)" /System/Volumes/Data/opt/nix
-sudo sh -c "echo 'nix System/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
+  # Create nix stuff
+  sudo mkdir -p /System/Volumes/Data/opt/nix
+  sudo chown "$(whoami)" /System/Volumes/Data/opt/nix
+  sudo sh -c "echo 'nix System/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
 
-export NIX_IGNORE_SYMLINK_STORE=1
+  export NIX_IGNORE_SYMLINK_STORE=1
 
-cat << EOF > "$HOME/.zprofile"
+  cat << EOF > "$HOME/.zprofile"
 if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
   . "$HOME/.nix-profile/etc/profile.d/nix.sh"
   export NIX_IGNORE_SYMLINK_STORE=1
 fi
 EOF
 
-info "All done! Repoop."
-repoop
+  info "All done! Repoop."
+  repoop
+}
