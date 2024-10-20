@@ -63,26 +63,24 @@ if ! has_requirements; then
   warning "Setting up requirements..."
 
   # Create nix stuff
-  mkdir /System/Volumes/Data/opt/nix
+  mkdir -p /System/Volumes/Data/opt/nix
   chown ildx /System/Volumes/Data/opt/nix
   sh -c "echo 'nix\tSystem/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
 
   export NIX_IGNORE_SYMLINK_STORE=1
 
-  cat << 'EOF' > $HOME/.zprofile
-  if [ -f $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
-    . $HOME/.nix-profile/etc/profile.d/nix.sh
-    export NIX_IGNORE_SYMLINK_STORE=1
-  fi
-  EOF
+  cat << 'EOF' > "$HOME/.zprofile"
+if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+  export NIX_IGNORE_SYMLINK_STORE=1
+fi
+EOF
 
   # Set a temporary marker that we were here...
-  if [ ! -d "$HOME/tmp" ]; then
-    mkdir -p "$HOME/tmp"
-  fi
+  mkdir -p "$HOME/tmp"
   touch "$HOME/tmp/jarvis.install"
 
-  # Add a cron job, so we can continue were we left off...
+  # Add a cron job, so we can continue where we left off...
   (crontab -l ; echo "$CRON") | crontab -
 
   info "All done! Repoop."
@@ -135,11 +133,11 @@ info "Bring in the big guns"
 printf "\n"
 
 JRV="$HOME/Development/personal/jarvis"
-mkdir -p $JRV
+mkdir -p "$JRV"
 
 nix-shell -p git --run \
-  "git clone https://github.com/ildx/jarvis.git $JRV; \
-  git -C $JRV remote set-url origin git@github.com:ildx/jarvis.git"
+  "git clone https://github.com/ildx/jarvis.git \"$JRV\"; \
+  git -C \"$JRV\" remote set-url origin git@github.com:ildx/jarvis.git"
 
 printf "\n"
 
@@ -157,11 +155,13 @@ if ! [[ -f "$SSH/authorized_keys" ]]; then
   ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
   cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
   eval "$(ssh-agent -s)"
-  echo "# Github
-  Host github.com
-    AddKeysToAgent yes
-    IdentityFile $SSH/id.personal
-    IgnoreUnknown UseKeychain" >> "$SSH/config"
+  cat << EOF >> "$SSH/config"
+# Github
+Host github.com
+  AddKeysToAgent yes
+  IdentityFile $SSH/id.personal
+  IgnoreUnknown UseKeychain
+EOF
   ssh-add "$SSH/id.personal"
   success "SSH keys generated successfully!"
 else
@@ -183,7 +183,7 @@ DIR=(
 )
 
 for dir in "${DIR[@]}"; do
-  if [ -d "$dir" ]; then  # Regular space here, not non-breaking
+  if [ -d "$dir" ]; then
     warning "Directory $dir already exists, skipping..."
   else
     mkdir -p "$dir"
@@ -200,5 +200,5 @@ printf "\n"
 # Aftermath
 # ---------------------------------
 
-info "Remember to add ssh key to github ( pbcopy < path_to_key )"
+info "Remember to add ssh key to github (pbcopy < path_to_key)"
 printf "\n"
