@@ -119,7 +119,7 @@ in
 			# Apple Silicon
 			enableRosetta = true;
 			# User owning the Homebrew prefix
-			user = "iivo";
+			user = "ildx";
 
 			autoMigrate = true;
 		};
