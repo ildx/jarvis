@@ -63,9 +63,9 @@ if ! has_requirements; then
   warning "Setting up requirements..."
 
   # Create nix stuff
-  mkdir -p /System/Volumes/Data/opt/nix
-  chown ildx /System/Volumes/Data/opt/nix
-  sh -c "echo 'nix\tSystem/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
+  sudo mkdir -p /System/Volumes/Data/opt/nix
+  sudo chown ildx /System/Volumes/Data/opt/nix
+  sudo sh -c "echo 'nix\tSystem/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
 
   export NIX_IGNORE_SYMLINK_STORE=1
 
