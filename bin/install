@@ -19,7 +19,7 @@ sudo -v
 cd && clear
 
 # Be polite!
-if ! command -v nix &>/dev/null; then
+if ! has_nix; then
   echo "Hello $(whoami)! Let's get you set up."
 else
   echo "Welcome back $(whoami)! Let's continue."
@@ -27,7 +27,9 @@ fi
 
 printf "\n"
 
-if ! command -v nix &>/dev/null; then
+if ! has_nix; then
+  install_requirements()
+else
   install_nix()
 fi
 
