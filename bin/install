@@ -86,6 +86,7 @@ install_nix() {
       printf "\n"
   
       curl -L https://nixos.org/nix/install | sh
+      exec zsh
   
       printf "\n"
       success "Nix installed successfully!"
