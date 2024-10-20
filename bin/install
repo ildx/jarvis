@@ -40,7 +40,7 @@ has_lock() {
 }
 
 # Funk soul brother
-install_requirements() {
+use_requirements() {
   info "Configure environment!"
   warning "Setting up requirements..."
 
@@ -65,9 +65,9 @@ EOF
   repoop
 }
 
-install_nix() {
+use_nix() {
   if ! has_nix && ! has_lock; then
-    install_requirements
+    use_requirements
   else
     rm -f "$LOCK_FILE"
     info "Nixify this bad boy!"
@@ -94,7 +94,7 @@ install_nix() {
   fi
 }
 
-install_dotfiles() {
+use_dotfiles() {
   info "Bring in the big guns!"
 
   mkdir -p "$JARVIS"
@@ -110,7 +110,7 @@ install_dotfiles() {
   success "Dotfiles downloaded successfully!"
 }
 
-add_keys() {
+use_keys() {
   info "Handover keys to the kingdom"
 
   if ! [[ -f "$SSH/authorized_keys" ]]; then
@@ -135,7 +135,24 @@ EOF
   fi
 }
 
-install_flakes() {
+use_xcode() {
+  info "Command the lines and the tools!"
+  if xcode-select -p &> /dev/null; then
+    success "Command Line Tools already installed, skipping..."
+  else
+    warning "Running installer..."
+    printf "\n"
+
+    xcode-select --install
+    xcode-select --switch /Library/Developer/CommandLineTools
+    /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+
+    printf "\n"
+    success "Command Line Tools installed successfully!"
+  fi
+}
+
+use_flakes() {
   info "Let is snow, let it snow, let is snow!"
   printf "\n"
 
@@ -145,7 +162,7 @@ install_flakes() {
   success "Flakes sprinkled aroung!"
 }
 
-link_files() {
+use_stow() {
   info "Link dotfiles"
   printf "\n"
 
@@ -175,23 +192,27 @@ fi
 printf "\n"
 
 # Nix
-install_nix
+use_nix
 printf "\n"
 
 # Dotfiles
-install_dotfiles
+use_dotfiles
 printf "\n"
 
 # SSH
-add_keys
+use_keys
+printf "\n"
+
+# Xcode
+use_xcode
 printf "\n"
 
 # Flakes
-install_flakes
+use_flakes
 printf "\n"
 
 # Stow
-link_files
+use_stow
 printf "\n"
 
 success "All good in the hood!"
