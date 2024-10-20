@@ -31,8 +31,6 @@ install_nix() {
     printf "\n"
     success "Nix installed successfully!"
   fi
-
-  printf "\n"
 }
 
 # ---------------------------------
