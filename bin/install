@@ -81,7 +81,7 @@ EOF
   touch "$HOME/tmp/jarvis.install"
 
   # Add a cron job, so we can continue where we left off...
-  (crontab -l ; echo "$CRON") | crontab -
+  (crontab -l; echo "$CRON") | crontab -
 
   info "All done! Repoop."
   repoop
