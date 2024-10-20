@@ -4,6 +4,10 @@
 # Setup
 # ---------------------------------
 
+LABEL="com.user.jarvis"
+AGENT="$HOME/Library/LaunchAgents/${LABEL}.plist"
+MARKER="$HOME/tmp/jarvis.install"
+
 # Obs, bail out
 set -e
 
@@ -14,7 +18,7 @@ repoop() {
 
 # The truth is out here
 has_requirements() {
-  command -v nix &>/dev/null || [ -f /tmp/jarvis.install ]
+  command -v nix &>/dev/null || [ -f "$MARKER" ]
 }
 
 # Printers
@@ -55,8 +59,6 @@ printf "\n"
 
 # File vault is meh and kills nix install so we must do some manual work :P
 
-CRON="@reboot bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/install)\""
-
 # If nix is not installed and no jarvis in tmp...
 if ! has_requirements; then
 
@@ -76,23 +78,40 @@ if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
 fi
 EOF
 
-  # Set a temporary marker that we were here...
+  # Set a marker that we were here...
   mkdir -p "$HOME/tmp"
-  touch "$HOME/tmp/jarvis.install"
+  touch "$MARKER"
 
-  # Add a cron job, so we can continue where we left off...
-  (crontab -l 2>/dev/null; echo "$CRON") | crontab -
-
-  # Kill zsh session
-  rm -rf ~/.zsh_sessions/*
-
+  # Create .plist file
+  cat << EOF > "$AGENT"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>$LABEL</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>/bin/bash</string>
+      <string>$0</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+  </dict>
+</plist>
+EOF
+  launchctl load "$AGENT"
+  
   info "All done! Repoop."
   repoop
 else
-  # We came back from the dead, so no need to keep cron around
+  # Resurrection!
   warning "Running cleanup..."
-  crontab -l | grep -vF "$CRON" | crontab -
-  rm -f "$HOME/tmp/jarvis.install"
+
+  rm -f "$MARKER"
+  launchctl unload "$AGENT"
+  rm -f "$AGENT"
+
   info "Cleaned up completed!"
 fi
 
