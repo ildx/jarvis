@@ -55,7 +55,7 @@ fi
 EOF
 
   # Add lock file
-  touch -f "$LOCKFILE"
+  sudo touch -f "$LOCKFILE"
 
   info "All done! Repoop."
   repoop
