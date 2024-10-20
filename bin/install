@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# ---------------------------------
+# Setup
+# ---------------------------------
+
 LOCK_FILE="$HOME/jarvis.lock"
 
 # Obs, bail out
@@ -82,7 +86,7 @@ install_nix() {
 }
 
 # ---------------------------------
-# Let's begin
+# Let us begin
 # ---------------------------------
 
 # Supa-dupa-fly
@@ -100,6 +104,10 @@ fi
 
 printf "\n"
 
+# ---------------------------------
+# Nix
+# ---------------------------------
+
 if ! has_nix && ! has_lock; then
   install_requirements
 else
@@ -110,7 +118,7 @@ fi
 printf "\n"
 
 # ---------------------------------
-# Get dotfiles
+# Dotfiles
 # ---------------------------------
 
 #info "Bring in the big guns"
