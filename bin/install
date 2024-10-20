@@ -9,7 +9,7 @@ set -e
 
 # Teehee!
 repoop() {
-  reboot
+  sudo reboot
 }
 
 # The truth is out here
