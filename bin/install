@@ -7,21 +7,31 @@
 # Obs, bail out
 set -e
 
+# Teehee!
+repoop() {
+  reboot
+}
+
+# The truth is out here
+has_requirements() {
+  command -v nix &>/dev/null || [ -f /tmp/jarvis.install ]
+}
+
 # Printers
-info () {
-	echo -e "\r[ \033[00;34m!!\033[0m ] $1"
+info() {
+  echo -e "\r[ \033[00;34m!!\033[0m ] $1"
 }
 
-success () {
-	echo -e "\r\033[2K[ \033[00;32mOK\033[0m ] $1"
+success() {
+  echo -e "\r\033[2K[ \033[00;32mOK\033[0m ] $1"
 }
 
-warning () {
+warning() {
   echo -e "\r[ \033[00;33m..\033[0m ] $1"
 }
 
 # ---------------------------------
-# Initiate
+# Let's begin
 # ---------------------------------
 
 # Supa-dupa-fly
@@ -31,43 +41,105 @@ sudo -v
 cd && clear
 
 # Be polite!
-echo "Hello $(whoami)! Let's get you set up."
+if ! has_requirements; then
+  echo "Hello $(whoami)! Let's get you set up."
+else
+  echo "Welcome back $(whoami)! Let's continue."
+fi
 
 printf "\n"
 
 # ---------------------------------
-# Go nuclear
+# B.C.
 # ---------------------------------
 
-# TODO: Confirm that we actually want to nuke everything!!
+# File vault is meh and kills nix install so we must do some manual work :P
 
-# Remove all life on earth...
-info "Launching missiles"
-printf "\n"
+CRON="@reboot bash -c '$(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/install)'"
 
-# ---------------------------------
-# Create file system 
-# ---------------------------------
+# If nix is not installed and no jarvis in tmp...
+if ! has_requirements; then
 
-info "Let's build a place to call home"
-printf "\n"
+  warning "Setting up requirements..."
 
-DIR=(
-  "$HOME/Archives"
-  "$HOME/Pictures/Screenshots"
-)
+  # Create nix stuff
+  mkdir /System/Volumes/Data/opt/nix
+  chown ildx /System/Volumes/Data/opt/nix
+  sh -c "echo 'nix\tSystem/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
 
-for dir in "${DIR[@]}"; do
-  if [ -d "$dir" ]; then  # Regular space here, not non-breaking
-    warning "Directory $dir already exists, skipping..."
-  else
-    mkdir -p "$dir"
-    info "Directory $dir created successfully!"
+  export NIX_IGNORE_SYMLINK_STORE=1
+
+  cat << 'EOF' > $HOME/.zprofile
+  if [ -f $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
+    . $HOME/.nix-profile/etc/profile.d/nix.sh
+    export NIX_IGNORE_SYMLINK_STORE=1
   fi
-done
+  EOF
+
+  # Set a temporary marker that we were here...
+  if [ ! -d "$HOME/tmp" ]; then
+    mkdir -p "$HOME/tmp"
+  fi
+  touch "$HOME/tmp/jarvis.install"
+
+  # Add a cron job, so we can continue were we left off...
+  (crontab -l ; echo "$CRON") | crontab -
+
+  info "All done! Repoop."
+  repoop
+else
+  # We came back from the dead, so no need to keep cron around
+  warning "Running cleanup..."
+  crontab -l | grep -vF "$CRON" | crontab -
+  rm -f "$HOME/tmp/jarvis.install"
+  info "Cleaned up completed!"
+fi
 
 printf "\n"
-success "A new ecosystem is in place!"
+
+# ---------------------------------
+# Install Nix
+# ---------------------------------
+
+info "Nixify this bad boy!"
+printf "\n"
+
+if command -v nix &>/dev/null; then
+  warning "Nix already installed. Checking for updates..."
+  printf "\n"
+
+  nix-channel --update
+
+  printf "\n"
+  success "Nix updated successfully!"
+else
+  warning "No Nix found!"
+  printf "\n"
+
+  warning "Install nix..."
+
+  curl -L https://nixos.org/nix/install | sh
+  exec zsh
+
+  printf "\n"
+  success "Nix installed successfully!"
+fi
+
+printf "\n"
+
+# ---------------------------------
+# Get dotfiles
+# ---------------------------------
+
+info "Bring in the big guns"
+printf "\n"
+
+JRV="$HOME/Development/personal/jarvis"
+mkdir -p $JRV
+
+nix-shell -p git --run \
+  "git clone https://github.com/ildx/jarvis.git $JRV; \
+  git -C $JRV remote set-url origin git@github.com:ildx/jarvis.git"
 
 printf "\n"
 
@@ -99,46 +171,28 @@ fi
 printf "\n"
 
 # ---------------------------------
-# Install Nix
+# Create file system 
 # ---------------------------------
 
-info "Let's Nixify this bad boy!"
+info "Build a place to call home"
 printf "\n"
 
-if command -v nix &>/dev/null; then
-  warning "Nix already installed. Checking for updates..."
-	printf "\n"
+DIR=(
+  "$HOME/Archives"
+  "$HOME/Pictures/Screenshots"
+)
 
-  nix-channel --update
-
-	printf "\n"
-  success "Nix updated successfully!"
-else
-  warning "No Nix found, installing..."
-  printf "\n"
-
-  curl -L https://nixos.org/nix/install | sh
-	exec zsh
-
-	printf "\n"
-  success "Nix installed successfully!"
-fi
+for dir in "${DIR[@]}"; do
+  if [ -d "$dir" ]; then  # Regular space here, not non-breaking
+    warning "Directory $dir already exists, skipping..."
+  else
+    mkdir -p "$dir"
+    info "Directory $dir created successfully!"
+  fi
+done
 
 printf "\n"
-
-# ---------------------------------
-# Get dotfiles
-# ---------------------------------
-
-info "Bring in the big guns"
-printf "\n"
-
-JRV="$HOME/Development/personal/jarvis"
-mkdir -p $JRV
-
-nix-shell -p git --run \
-  "git clone https://github.com/ildx/jarvis.git $JRV; \
-  git -C $JRV remote set-url origin git@github.com:ildx/jarvis.git"
+success "A new ecosystem is in place!"
 
 printf "\n"
 
