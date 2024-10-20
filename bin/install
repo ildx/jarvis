@@ -78,8 +78,8 @@ install_nix() {
     printf "\n"
 
     warning "Install nix..."
-
     curl -L https://nixos.org/nix/install | sh
+
     printf "\n"
     success "Nix installed successfully!"
   fi
