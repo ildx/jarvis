@@ -5,3 +5,8 @@
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/install)"
 ```
+
+## Other useful things
+```bash
+darwin-rebuild switch --flake ~/Development/personal/jarvis#hal
+```
