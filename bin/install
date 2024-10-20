@@ -4,8 +4,8 @@
 # Setup
 # ---------------------------------
 
-LABEL="com.user.jarvis"
 AGENT="$HOME/Library/LaunchAgents/${LABEL}.plist"
+LABEL="com.user.jarvis"
 MARKER="$HOME/tmp/jarvis.install"
 
 # Obs, bail out
