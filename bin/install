@@ -194,6 +194,8 @@ printf "\n"
 link_files
 printf "\n"
 
+success "All good in the hood!"
+
 # ---------------------------------
 # Create file system 
 # ---------------------------------
