@@ -1,12 +1,75 @@
 #!/usr/bin/bash
 
-# Load dependencies
-source <(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/printers)
-source <(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/requirements)
-source <(curl -fsSL https://raw.githubusercontent.com/ildx/jarvis/main/bin/setup)
-
 # Obs, bail out
 set -e
+
+# Printers
+info() {
+  echo -e "\r[ \033[00;34m!!\033[0m ] $1"
+}
+
+success() {
+  echo -e "\r\033[2K[ \033[00;32mOK\033[0m ] $1"
+}
+
+warning() {
+  echo -e "\r[ \033[00;33m..\033[0m ] $1"
+}
+
+# Teehee!
+repoop() {
+  sudo reboot
+}
+
+# Helpers
+has_nix() {
+  command -v nix &>/dev/null
+}
+
+install_requirements() {
+  warning "Setting up requirements..."
+
+  # Create nix stuff
+  sudo mkdir -p /System/Volumes/Data/opt/nix
+  sudo chown "$(whoami)" /System/Volumes/Data/opt/nix
+  sudo sh -c "echo 'nix System/Volumes/Data/opt/nix' >> /etc/synthetic.conf"
+
+  export NIX_IGNORE_SYMLINK_STORE=1
+
+  cat << EOF > "$HOME/.zprofile"
+if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+  export NIX_IGNORE_SYMLINK_STORE=1
+fi
+EOF
+
+  info "All done! Repoop."
+  repoop
+}
+
+install_nix() {
+  info "Nixify this bad boy!"
+  printf "\n"
+
+  if ! has_nix; then
+    warning "Nix already installed. Checking for updates..."
+    printf "\n"
+
+    nix-channel --update
+
+    printf "\n"
+    success "Nix updated successfully!"
+  else
+    warning "No Nix found!"
+    printf "\n"
+
+    warning "Install nix..."
+
+    curl -L https://nixos.org/nix/install | sh
+    printf "\n"
+    success "Nix installed successfully!"
+  fi
+}
 
 # ---------------------------------
 # Let's begin
@@ -34,3 +97,81 @@ else
 fi
 
 printf "\n"
+
+# ---------------------------------
+# Get dotfiles
+# ---------------------------------
+
+#info "Bring in the big guns"
+#printf "\n"
+
+#JRV="$HOME/Development/personal/jarvis"
+#mkdir -p "$JRV"
+
+#nix-shell -p git --run \
+#  "git clone https://github.com/ildx/jarvis.git \"$JRV\"; \
+#  git -C \"$JRV\" remote set-url origin git@github.com:ildx/jarvis.git"
+
+#printf "\n"
+
+# ---------------------------------
+# SSH
+# ---------------------------------
+
+#info "Handover keys to the kingdom"
+#printf "\n"
+
+#SSH="$HOME/.ssh"
+
+#if ! [[ -f "$SSH/authorized_keys" ]]; then
+#  mkdir -p "$SSH"
+#  ssh-keygen -t ed25519 -C "iivari.leinonen@gmail.com" -f "$SSH/id.personal"
+#  cat "$SSH/id.personal.pub" >> "$SSH/authorized_keys"
+#  eval "$(ssh-agent -s)"
+#  cat << EOF >> "$SSH/config"
+## Github
+#Host github.com
+#  AddKeysToAgent yes
+#  IdentityFile $SSH/id.personal
+#  IgnoreUnknown UseKeychain
+#EOF
+#  ssh-add "$SSH/id.personal"
+#  success "SSH keys generated successfully!"
+#else
+#  success "SSH keys already generated, skipping..."
+#fi
+
+#printf "\n"
+
+# ---------------------------------
+# Create file system 
+# ---------------------------------
+
+#info "Build a place to call home"
+#printf "\n"
+
+#DIR=(
+#  "$HOME/Archives"
+#  "$HOME/Pictures/Screenshots"
+#)
+
+#for dir in "${DIR[@]}"; do
+#  if [ -d "$dir" ]; then
+#    warning "Directory $dir already exists, skipping..."
+#  else
+#    mkdir -p "$dir"
+#    info "Directory $dir created successfully!"
+#  fi
+#done
+
+#printf "\n"
+#success "A new ecosystem is in place!"
+
+#printf "\n"
+
+# ---------------------------------
+# Aftermath
+# ---------------------------------
+
+#info "Remember to add ssh key to github (pbcopy < path_to_key)"
+#printf "\n"
