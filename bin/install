@@ -103,7 +103,7 @@ printf "\n"
 if if ! has_nix && ! has_lock; then
   install_requirements
 else
-  rm -f 
+  rm -f "$LOCK_FILE"
   install_nix
 fi
 
