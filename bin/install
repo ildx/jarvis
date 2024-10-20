@@ -139,7 +139,7 @@ install_flakes() {
   info "Let is snow, let it snow, let is snow!"
   printf "\n"
 
-  darwin-rebuild switch --flake "$JARVIS#hal"
+  nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$JARVIS#hal"
 
   printf "\n"
   success "Flakes sprinkled aroung!"
